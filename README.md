@@ -19,6 +19,6 @@ rds1983/Sichem ：https://github.com/rds1983/Sichem/tree/cb749319b07e41ace86745b
 
 #### Preview
 KCP in C
-![Image of C](https://https://github.com/dayfox5317/Image/c.png)
+![Image of C](https://github.com/dayfox5317/Cpp2Csharp/blob/master/Image/c.png)
 KCP in CSharp
-![Image of CS](https://https://github.com/dayfox5317/Image/cs.png)
+![Image of CS](https://github.com/dayfox5317/Cpp2Csharp/blob/master/Image/cs.png)
