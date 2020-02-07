@@ -261,7 +261,9 @@ namespace Sichem
 							result += "fixed " + expr.Info.Type.GetPointeeType().ToCSharpTypeString() + " " + fieldName + "[" +
 									  expr.Expression + "]";
 							Temp_Ctor[_structName]?.Params.Add(expr.Info.Type.GetPointeeType().ToCSharpTypeString() + "[] " + fieldName);
-							Temp_Ctor[_structName]?.Params2.Add($"CRuntime.MarshalCopy({fieldName},0, (this.{fieldName}), {fieldName}.Length);");
+							Temp_Ctor[_structName]?.Params2.Add($"fixed({expr.Info.Type.GetPointeeType().ToCSharpTypeString()}* Fixed_{fieldName} = this.{fieldName} )");
+
+							Temp_Ctor[_structName]?.Params2.Add($"CRuntime.MarshalCopy({fieldName},0, (Fixed_{fieldName}), {fieldName}.Length);");
 							Temp_Ctor[_structName]?.Names.Remove(fieldName);
 						}
 						else
