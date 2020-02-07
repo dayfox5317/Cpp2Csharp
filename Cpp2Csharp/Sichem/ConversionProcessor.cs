@@ -302,7 +302,50 @@ namespace Sichem
 
 			return CXChildVisitResult.CXChildVisit_Recurse;
 		}
+		private unsafe CXChildVisitResult VisitMacro(CXCursor cursor, CXCursor parent, void* data)
+		{
 
+			if (cursor.IsInSystemHeader())
+			{
+				return CXChildVisitResult.CXChildVisit_Continue;
+			}
+
+			var curKind = cursor.Kind;
+
+
+			if (curKind == CXCursorKind.CXCursor_MacroExpansion || curKind == CXCursorKind.CXCursor_MacroDefinition)
+			{
+				var tokens = cursor.Tokenize(cursor.TranslationUnit);
+				if (tokens.Length != 2)
+				{
+					return CXChildVisitResult.CXChildVisit_Continue;
+				}
+
+				var defn = tokens[0].Trim();
+				var value = tokens[1];
+				Logger.Info("Processing macro {0}", defn);
+
+
+
+				Source = "Macro.cs";
+
+
+				{
+					if (value.IndexOf("\"") != value.LastIndexOf("\""))
+					{
+						IndentedWriteLine("public const string {0}\n\t = {1};", defn, tokens[1]);
+					}
+					else
+						IndentedWriteLine("public const string {0}\n\t = \"{1}\";", defn, tokens[1]);
+				}
+
+
+
+			}
+
+			return CXChildVisitResult.CXChildVisit_Continue;//fixed if is continue ,will loss some 
+
+		}
 		private unsafe CXChildVisitResult VisitEnums(CXCursor cursor, CXCursor parent, void* data)
 		{
 			if (cursor.IsInSystemHeader())
@@ -1663,6 +1706,7 @@ namespace Sichem
 
 		private void UpdateSource(CXType functionType)
 		{
+
 			Source = "Utility.cs";
 
 			var numArgTypes = clang.getNumArgTypes(functionType);
@@ -1734,6 +1778,12 @@ namespace Sichem
 		{
 			_state = State.Enums;
 
+			Source = "Macro.cs";
+			IndentedWriteLine($"public class Macro_Const\n");
+			IndentedWriteLine("{\n");
+			clang.getTranslationUnitCursor(_translationUnit).VisitChildren(VisitMacro, new CXClientData(IntPtr.Zero));
+
+			IndentedWriteLine("}\n");
 
 			if ((_parameters.SkipFlags & SkipFlags.Enums) != SkipFlags.Enums)
 			{
